@@ -175,8 +175,10 @@ struct shiina {
         check(input, '"');
         std::string res;
         auto it = std::begin(input);
-        while (*it != '"')
+        while (*it != '"') {
             res += *it;
+            it++;
+        }
         input.erase(0, res.size());
         check(input, '"');
         return shiina{res};
