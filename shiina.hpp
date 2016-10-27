@@ -5,6 +5,7 @@
 #include <map>
 #include <string>
 #include <algorithm>
+#include <fstream>
 #include <iostream>
 
 namespace shiina_detail {
@@ -294,6 +295,17 @@ struct shiina {
     // TODO: remove
     Type type() const {
         return m_type;
+    }
+
+    static shiina load(const char* filename) {
+        std::ifstream ifs(filename);
+        if (ifs.fail())
+            throw std::string{"file not exist: "} + filename;
+        std::string src{
+            std::istreambuf_iterator<char>(ifs),
+            std::istreambuf_iterator<char>()
+        };
+        return shiina::parse(src);
     }
 private:
     union {
