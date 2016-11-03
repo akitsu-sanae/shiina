@@ -11,7 +11,7 @@ All you must do is `#include "shiina.hpp"`
 ```cpp
 auto obj = shiina::parse(R"({"pi": 3.141592})");
 std::cout << obj << std::endl; // printed "{hoge: pi}"
-std::cout << s["hoge"] << std::endl; // printed "3.141592"
+std::cout << obj["hoge"] << std::endl; // printed "3.141592"
 ```
 
 # Copyright
