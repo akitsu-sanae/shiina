@@ -263,19 +263,75 @@ struct shiina {
         }
     }
 
-    // TODO: check value type
-    std::nullptr_t& as_null() { return null; }
-    std::nullptr_t const& as_null() const { return null; }
-    bool& as_boolean() { return boolean; }
-    bool const& as_boolean() const { return boolean; }
-    double& as_number() { return number; }
-    double const& as_number() const { return number; }
-    std::string& as_string() { return str; }
-    std::string const& as_string() const { return str; }
-    Array& as_array() { return array; }
-    Array const& as_array() const { return array; }
-    Object& as_object() { return object; }
-    Object const& as_object() const { return object; }
+    struct invalid_cast {};
+
+    std::nullptr_t& as_null() {
+        if (m_type == Type::Null)
+            return null;
+        throw invalid_cast{};
+    }
+    std::nullptr_t const& as_null() const {
+        if (m_type == Type::Null)
+            return null;
+        throw invalid_cast{};
+    }
+
+    bool& as_boolean() {
+        if (m_type == Type::Boolean)
+            return boolean;
+        throw invalid_cast{};
+    }
+    bool const& as_boolean() const {
+        if (m_type == Type::Boolean)
+            return boolean;
+        throw invalid_cast{};
+    }
+
+    double& as_number() {
+        if (m_type == Type::Number)
+            return number;
+        throw invalid_cast{};
+    }
+    double const& as_number() const {
+        if (m_type == Type::Number)
+            return number;
+        throw invalid_cast{};
+    }
+
+    std::string& as_string() {
+        if (m_type == Type::String)
+            return str;
+        throw invalid_cast{};
+    }
+    std::string const& as_string() const {
+        if (m_type == Type::String)
+            return str;
+        throw invalid_cast{};
+    }
+
+    Array& as_array() {
+        if (m_type == Type::Array)
+            return array;
+        throw invalid_cast{};
+    }
+    Array const& as_array() const {
+        if (m_type == Type::Array)
+            return array;
+        throw invalid_cast{};
+    }
+
+    Object& as_object() {
+        if (m_type == Type::Object)
+            return object;
+        throw invalid_cast{};
+    }
+    Object const& as_object() const {
+        if (m_type == Type::Object)
+            return object;
+        throw invalid_cast{};
+    }
+
+
 
     struct bad_path {
         std::string path;
