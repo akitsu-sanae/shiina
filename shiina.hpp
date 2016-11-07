@@ -353,13 +353,26 @@ struct shiina {
         return m_type;
     }
 
+    bool is_primitive() const {
+        switch (m_type) {
+        case Type::Null:
+        case Type::Boolean:
+        case Type::Number:
+        case Type::String:
+            return true;
+        case Type::Array:
+        case Type::Object:
+            return false;
+        }
+    }
+
     static shiina load(const char* filename) {
         std::ifstream ifs(filename);
         if (ifs.fail())
             throw std::string{"file not exist: "} + filename;
         std::string src{
             std::istreambuf_iterator<char>(ifs),
-            std::istreambuf_iterator<char>()
+                std::istreambuf_iterator<char>()
         };
         return shiina::parse(src);
     }
@@ -411,34 +424,59 @@ private:
     Type m_type;
 };
 
-inline std::ostream& operator<<(std::ostream& os, shiina const& s) {
-    switch (s.type()) {
-    case shiina::Type::Null:
-        os << "null";
-        break;
-    case shiina::Type::Boolean:
-        os << std::boolalpha << s.as_boolean();
-        break;
-    case shiina::Type::Number:
-        os << s.as_number();
-        break;
-    case shiina::Type::String:
-        os << '"' << s.as_string() << '"';
-        break;
-    case shiina::Type::Array:
-        os << '[';
-        for (auto const& e: s.as_array())
-            os << e << ',';
-        os << ']';
-        break;
-    case shiina::Type::Object:
-        os << '{';
-        for (auto const& e: s.as_object())
-            os << e.first << ": " << e.second;
-        os << '}';
-        break;
+namespace shiina_detail {
+
+struct printer {
+    std::ostream& print(std::ostream& os, shiina const& s) {
+        switch (s.type()) {
+        case shiina::Type::Null:
+            os << "null";
+            break;
+        case shiina::Type::Boolean:
+            os << std::boolalpha << s.as_boolean();
+            break;
+        case shiina::Type::Number:
+            os << s.as_number();
+            break;
+        case shiina::Type::String:
+            os << '"' << s.as_string() << '"';
+            break;
+        case shiina::Type::Array: {
+            os << '[' << std::endl;
+            indent_width += 4;
+            auto const& array = s.as_array();
+            for (auto const& e: array) {
+                os << std::string(indent_width, ' ');
+                print(os, e);
+                os << std::endl;
+            }
+            indent_width -= 4;
+            os << std::string(indent_width, ' ') << ']';
+            break;
+            }
+        case shiina::Type::Object: {
+            os << '{' << std::endl;
+            indent_width += 4;
+            auto const& object = s.as_object();
+            for (auto const& e: object) {
+                os << std::string(indent_width, ' ') <<  '"' << e.first << "\": ";
+                print(os, e.second);
+                os << std::endl;
+            }
+            indent_width -= 4;
+            os << std::string(indent_width, ' ') << '}' << std::endl;;
+            break;
+            }
+        }
+        return os;
     }
-    return os;
+    int indent_width = 0;
+};
+
+}
+
+inline std::ostream& operator<<(std::ostream& os, shiina const& s) {
+    return shiina_detail::printer{}.print(os, s);
 }
 
 #endif
